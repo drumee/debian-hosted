@@ -1,0 +1,160 @@
+#!/bin/bash
+
+# log
+function log() {
+  echo $(date "+%Y:%m:%d[%H:%M:%s]") $* | tee $log_file
+}
+
+#answer
+answer() {
+  stdin="${1:-/dev/stdin}"
+  while read line; do
+    break
+  done <$stdin
+  echo $line$()
+}
+
+# Ensure there won't be confilcting ports
+check_ports() {
+  set +
+  echo Scanning ports in use. This may take a while
+  netstat -alpute | awk 'BEGIN { FS=" " } {print $4}' | egrep -E ".+:.+" >/tmp/netstat.log
+  ports="53 10000 3478 5222 5269 5280 5281 5282 5283 5349 8888 9090 domain xmpp-client xmpp-server"
+
+  for i in $ports; do
+    port=$(grep -w $i /tmp/netstat.log)
+    if [ ! -z "$port" ]; then
+      echo port $i is already in used
+    fi
+  done
+}
+
+# Install Debian packages dependencies
+install_dependencies() {
+  echo Instaling Debian packages dependencies...
+  apt update
+  apt install -y build-essential net-tools g++ apt-utils gpg gnupg2 apt-transport-https curl software-properties-common inotify-tools wget lsb-release ca-certificates dialog bind9 bind9utils bind9-doc nginx openssh-client git cron vim default-jdk graphicsmagick libgraphicsmagick1-dev poppler-utils dcraw p7zip-full ffmpeg redis-server redis node-redis rsyslog lua-dbi-sqlite3 gyp libreoffice libnginx-mod-stream mysql-common
+}
+
+# 
+install_drumee_packages() {
+  if [ "$1" != "" ]; then
+    export DRUMEE_REPO=$1
+  fi
+
+  if [ "$DRUMEE_REPO" = "" ]; then
+    export DRUMEE_REPO=app.drumee.com
+  fi
+  echo Using packags from $DRUMEE_REPO
+  tmpdir=/var/tmp/drumee/packages
+  mkdir -p $tmpdir
+  cd $tmpdir
+  env_file=env.sh
+  installed=$(dpkg -l | egrep "^ii +drumee-infra ")
+  if [ "$installed" != "" ]; then
+    if [ "$1" = "yes" ]; then
+      echo Force reinstall. Previous setup will be lost
+    else
+      echo "Drumee infrastructure is alread set up"
+      echo "use install --force-infra-install=yes to proceed."
+      return 0
+    fi
+  fi
+
+  scv="/-/svc/install.debian"
+  repo="https://${DRUMEE_REPO}${scv}"
+  log Getting packages list from "${repo}"
+  curl "${repo}" > $env_file
+  source $env_file
+
+  for package in $DRUMEE_PACKAGES; do
+    log Downloading "${DRUMEE_PACKAGES_BASE}/${package}"
+    curl -O "${DRUMEE_PACKAGES_BASE}/${package}"
+    if [ $? -ne "0" ]; then
+      log Failed to download package $package
+      return 1
+    fi
+  done
+
+  echo "drumee-infra drumee-infra/components  string all" > debconf-preset
+  debconf-set-selections debconf-preset
+
+  for package in $DRUMEE_PACKAGES; do
+    dpkg -i $package
+  done
+
+  if [ ! -f /etc/drumee/drumee.sh ]; then
+    echo Could not run Drumee without proper settings
+    return 1
+  fi
+
+  source /etc/drumee/drumee.sh
+
+  chown -R ${DRUMEE_SYSTEM_USER}:${DRUMEE_SYSTEM_GROUP} /data
+  chown -R ${DRUMEE_SYSTEM_USER}:${DRUMEE_SYSTEM_GROUP} $ACME_CERTS_DIR
+  log "All packages have been sucessfuly installed!"
+}
+
+
+install_postfix() {
+  DEBIAN_FRONTEND="noninteractive" apt install -y libopendkim11 opendkim-tools libmail-dkim-perl opendkim postfix mailutils spamass-milter postfix-mysql
+}
+
+install_mariadb() {
+  v=$(which mariadb)
+  if [ "$v" = "" ]; then
+    v=0
+  else
+    v=$(mariadb --version | awk '{print $5}' | sed -E "s/\..+$//")
+  fi
+  if (($v > 9)); then
+    echo "Already have MariaDb"
+  else
+    if [ ! -f /etc/apt/sources.list.d/mariadb.list ]; then
+      curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash
+    fi
+    apt install -y --no-install-recommends mariadb-server mariadb-client mariadb-backup
+  fi
+  service mariadb stop
+}
+
+# Install Jitsi packages
+install_jitsi() {
+  installed=$(dpkg -l | egrep "^ii +jitsi-meet")
+  if [ "$installed" != "" ]; then
+    echo Already have jitsi-meet. 
+    return 0
+  fi
+  curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/jitsi-key.gpg
+  echo "deb https://download.jitsi.org stable/" | tee /etc/apt/sources.list.d/jitsi-stable.list
+
+  apt update
+  apt install -y prosody
+  DEBIAN_FRONTEND="noninteractive" apt install -y jitsi-meet
+}
+
+#
+node_version() {
+  v=$(which node)
+  if [ -z $v ]; then
+    echo "0"
+  else
+    v=$(node -v | sed -E "s/^v//" | sed -E "s/\..+$//")
+    echo $v
+  fi
+}
+
+# Install Node packages dependencies
+install_node_packages() {
+  echo Installing Node packages dependencies...
+  version=$(node_version)
+  if (($version < 20)); then
+    curl -s https://deb.nodesource.com/setup_20.x | bash && apt-get update && apt-get install nodejs -y
+  fi
+
+  node -v
+  npm -v
+
+  npm install -g moment minimist shelljs jsonfile readline-sync pm2 pm2-logrotate lodash node-gyp node-pre-gyp coffeescript sass 
+}
+

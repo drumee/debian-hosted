@@ -1,0 +1,90 @@
+#!/bin/bash
+# Drumee loader
+script_dir=$(dirname $(readlink -f $0))
+base_dir=$(dirname $script_dir)
+source $script_dir/functions
+
+ports_check=yes
+force_infra=
+for arg in "$@"; do
+  case $arg in
+  --skip-ports-check=*)
+    ports_check="no"
+    shift
+    ;;
+  --repository=*)
+    repository="no"
+    shift
+    ;;
+  --force-infra-install=*)
+    force_infra="yes"
+    shift
+    ;;
+  esac
+done
+set +e
+install_dependencies
+check_ports
+install_node_packages
+
+debconf-set-selections $base_dir/preset/postfix
+install_postfix
+
+debconf-set-selections $base_dir/preset/jitsi
+install_jitsi
+
+install_mariadb
+install_drumee_packages $repository
+
+cd $script_dir
+
+if [ -f /run/prosody/prosody.pid ]; then
+  prosody=$(cat /run/prosody/prosody.pid)
+  if [ "$prosody" != "" ]; then
+    kill -9 $prosody
+  fi
+fi
+
+if [ "$OWN_SSL" = "" ]; then
+  # In case first init failed. Retry once
+  if [ ! -f ${ACME_CERTS_DIR}/${DRUMEE_DOMAIN_NAME}_ecc/${DRUMEE_DOMAIN_NAME}.key ]; then
+    /var/lib/drumee/infra-setup/bin/init-acme
+  fi
+fi
+
+nginx -t
+if [ "$?" = "0" ]; then
+  service nginx start
+fi
+
+service prosody restart
+service jicofo restart
+service jitsi-videobridge2 restart
+service coturn restart
+service named restart
+service postfix start
+
+if [ -x /usr/sbin/drumee ]; then
+  service redis-server start
+  service mariadb start
+  service drumee start main
+  sleep 5
+  service drumee start main/service
+fi
+
+service postfix restart 
+service cron reload
+
+if [ "$installed" = "" ]; then
+  welcome=$DRUMEE_DATA_DIR/tmp/welcome.html
+  if [ -f $welcome ]; then
+    echo Installation completed !
+    node /var/lib/drumee/schemas-setup/bin/acknowledge.js
+  fi 
+fi
+
+echo Factory will start in one hour
+( sleep 3600 ; service drumee start factory ) &
+
+
+echo Done !

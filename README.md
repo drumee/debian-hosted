@@ -68,7 +68,7 @@ cp env.sh my-setup.sh
 
 **Ensure directories (DRUMEE_DB_DIR, DRUMEE_DATA_DIR) exist and have enough space**
 
-*Folling command must be executed as root user i.e su, not sudo"*
+*Folling command must be executed as root user i.e su, not sudo*
 ```console
 ./install --env-file=my-setup.sh
 ```

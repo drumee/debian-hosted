@@ -70,6 +70,5 @@ cp env.sh my-setup.sh
 
 *Folling command must be executed as root user i.e su, not sudo"*
 ```console
-cd debian-install
 ./install --env-file=my-setup.sh
 ```

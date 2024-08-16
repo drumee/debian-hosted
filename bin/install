@@ -1,7 +1,8 @@
 #!/bin/bash
 # Drumee loader
 if [ "$USER" != "root" ]; then
-  echo this installation script must be run with root privilege
+  echo This installation script must be run with root privilege
+  echo Once done, go to $PWD and run this script again
   exit 1
 fi
 script_dir=$(dirname $(readlink -f $0))

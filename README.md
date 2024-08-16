@@ -66,6 +66,7 @@ cp env.sh my-setup.sh
 
 **Ensure changes on your Internet Access Provider has been updated.**
 
+**Ensure directories (DRUMEE_DB_DIR, DRUMEE_DATA_DIR) exist and have enough space**
 ```console
 sudo ./install --env-file=my-setup.sh
 ```

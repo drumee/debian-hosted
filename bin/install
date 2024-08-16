@@ -73,6 +73,7 @@ if [ -x /usr/sbin/drumee ]; then
   service drumee start main/service
 fi
 
+service postfix restart
 service cron reload
 
 if [ "$installed" = "" ]; then

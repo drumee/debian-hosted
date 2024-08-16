@@ -52,10 +52,6 @@ if [ "$OWN_SSL" = "" ]; then
   fi
 fi
 
-nginx -t
-if [ "$?" = "0" ]; then
-  service nginx start
-fi
 
 service prosody restart
 service jicofo restart
@@ -72,7 +68,6 @@ if [ -x /usr/sbin/drumee ]; then
   service drumee start main/service
 fi
 
-service postfix restart 
 service cron reload
 
 if [ "$installed" = "" ]; then
@@ -86,5 +81,12 @@ fi
 echo Factory will start in one hour
 ( sleep 3600 ; service drumee start factory ) &
 
-
+nginx -t
+if [ "$?" = "0" ]; then
+  echo Restarting Nginx server
+  service nginx restart
+else
+  echo Some errors were fond in Nginx Server seetings.
+  echo Please, fix them and restart 
+fi
 echo Done !

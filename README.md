@@ -49,11 +49,11 @@ Open your provider's DNS manager.
 Wait the change to take effects. 
 
 ```console
-git clone https://github.com/drumee/debian-install.git
+git clone https://github.com/drumee/debian-hosted.git
 ```
 
 ```console
-cd debian-install
+cd debian-hosted
 ```
 
 ```console

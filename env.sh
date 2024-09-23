@@ -1,5 +1,8 @@
 # Change below values accordingly to you setup
 
+# This text will be shown on the login page
+export DRUMEE_DESCRIPTION="My Drumee Box"
+
 # This is the URL base to access your Drumee Instance
 # It's recommanded not to share the domain name 
 # with any oher applications
@@ -30,9 +33,6 @@ export DRUMEE_DATA_DIR="" # defaulted to /data
 # If you plan to make a backup on a remote host, ensure
 # ssh keys are properly setup
 export STORAGE_BACKUP="" # [user@host-or-ip:]/path/
-
-# This text will be shown on the login page
-export DRUMEE_DESCRIPTION="My Drumee Box"
 
 # If not set, will be defaulted to ADMIN_EMAIL.
 # SSL certificates are generated using zerossl.com ACME server

@@ -38,13 +38,6 @@ install_dependencies() {
 
 # 
 install_drumee_packages() {
-  if [ "$1" != "" ]; then
-    export DRUMEE_REPO=$1
-  fi
-
-  if [ "$DRUMEE_REPO" = "" ]; then
-    export DRUMEE_REPO=app.drumee.com
-  fi
   echo Using packags from $DRUMEE_REPO
   tmpdir=/var/tmp/drumee/packages
   mkdir -p $tmpdir
@@ -149,8 +142,8 @@ node_version() {
 install_node_packages() {
   echo Installing Node packages dependencies...
   version=$(node_version)
-  if (($version < 20)); then
-    curl -s https://deb.nodesource.com/setup_20.x | bash && apt-get update && apt-get install nodejs -y
+  if (($version < 21)); then
+    curl -s https://deb.nodesource.com/setup_21.x | bash && apt-get update && apt-get install nodejs -y
   fi
 
   node -v

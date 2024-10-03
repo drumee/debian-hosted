@@ -97,4 +97,6 @@ else
   echo Some errors were fond in Nginx Server seetings.
   echo Please, fix them and restart 
 fi
+
+node /var/lib/drumee/setup-schemas/bin/acknowledge.js
 echo Done !

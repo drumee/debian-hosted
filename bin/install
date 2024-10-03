@@ -10,7 +10,8 @@ base_dir=$(dirname $script_dir)
 source $script_dir/functions
 
 ports_check=yes
-force_infra=
+reinstall=
+repository=
 for arg in "$@"; do
   case $arg in
   --skip-ports-check=*)
@@ -18,11 +19,11 @@ for arg in "$@"; do
     shift
     ;;
   --repository=*)
-    repository="no"
+    repository="${arg#*=}"
     shift
     ;;
   --force-infra-install=*)
-    force_infra="yes"
+    reinstall="reinstall"
     shift
     ;;
   esac
@@ -39,7 +40,7 @@ debconf-set-selections $base_dir/preset/jitsi
 install_jitsi
 
 install_mariadb
-install_drumee_packages $repository
+install_drumee_packages $repository $reinstall
 
 cd $script_dir
 
@@ -53,7 +54,7 @@ fi
 if [ "$OWN_SSL" = "" ]; then
   # In case first init failed. Retry once
   if [ ! -f ${ACME_CERTS_DIR}/${DRUMEE_DOMAIN_NAME}_ecc/${DRUMEE_DOMAIN_NAME}.key ]; then
-    /var/lib/drumee/infra-setup/bin/init-acme
+    /var/lib/drumee/setup-infra/bin/init-acme
   fi
 fi
 
@@ -71,18 +72,12 @@ if [ -x /usr/sbin/drumee ]; then
   service drumee start main
   sleep 5
   service drumee start main/service
+  sleep 5
+  drumee install pm2-logrotate
 fi
 
 service postfix restart
 service cron reload
-
-if [ "$installed" = "" ]; then
-  welcome=$DRUMEE_DATA_DIR/tmp/welcome.html
-  if [ -f $welcome ]; then
-    echo Installation completed !
-    node /var/lib/drumee/setup-schemas/bin/acknowledge.js
-  fi 
-fi
 
 echo Factory will start in one hour
 ( sleep 3600 ; service drumee start factory ) &

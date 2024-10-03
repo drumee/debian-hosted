@@ -40,6 +40,13 @@ debconf-set-selections $base_dir/preset/jitsi
 install_jitsi
 
 install_mariadb
+if [ $reinstall = "reinstall" ]; then
+  echo Reinstalling Drumee Packages
+  for i in drumee-ui-pod drumee-server-pod drumee-infra drumee-schemas drumee-static; do
+    dpkg -r $i
+  done
+fi
+
 install_drumee_packages $repository $reinstall
 
 cd $script_dir

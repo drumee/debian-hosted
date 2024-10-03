@@ -45,14 +45,9 @@ install_drumee_packages() {
   env_file=env.sh
   installed=$(dpkg -l | egrep "^ii +drumee-infra ")
   if [ "$installed" != "" ]; then
-    if [ "$2" = "reinstall" ]; then
-      echo Force reinstall. Previous setup will be lost
-      exort FORCE_INSTALL=yes
-    else
-      echo "Drumee infrastructure is alread set up"
-      echo "use install --force-infra-install=yes to proceed."
-      return 0
-    fi
+    echo "Drumee infrastructure is alread set up"
+    echo "use install --force-infra-install=yes to proceed."
+    return 0
   fi
 
   scv="/-/svc/install.debian"

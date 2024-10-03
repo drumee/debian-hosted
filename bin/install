@@ -45,9 +45,10 @@ if [ $reinstall = "reinstall" ]; then
   for i in drumee-ui-pod drumee-server-pod drumee-infra drumee-schemas drumee-static; do
     dpkg -r $i
   done
+  exort FORCE_INSTALL=yes
 fi
 
-install_drumee_packages $repository $reinstall
+install_drumee_packages $reinstall
 
 cd $script_dir
 

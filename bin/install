@@ -80,7 +80,7 @@ if [ "$installed" = "" ]; then
   welcome=$DRUMEE_DATA_DIR/tmp/welcome.html
   if [ -f $welcome ]; then
     echo Installation completed !
-    node /var/lib/drumee/schemas-setup/bin/acknowledge.js
+    node /var/lib/drumee/setup-schemas/bin/acknowledge.js
   fi 
 fi
 

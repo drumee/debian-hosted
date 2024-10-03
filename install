@@ -92,7 +92,6 @@ else
   echo * You didn\'t specify a backup storage locatiion             *
   echo * in case of failure, you may lost partly or all of you data *
   echo **************************************************************
-
 fi
 
 export INFRA_COMPONENTS=all

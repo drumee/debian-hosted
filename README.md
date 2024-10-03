@@ -18,9 +18,9 @@ This packae is dedicated to Debian Distribution Targets only
 ## Prerequisite
 ### Settings
 - A maiden Internet domain name
-- Control Access to GLU DNS of the Internet domain
+- Control Access to your DNS zone
+- Control Access to your GLU DNS
 - At least one Public IP addresses, IPV4 and/or IPV6
-- Docker Engine version 20 or higher
 - Debian 11 or higher
 
 ### Hardware
@@ -31,22 +31,61 @@ This packae is dedicated to Debian Distribution Targets only
 ### Recommandations
 - Drumee should be installed on a dedicated disks or partitions
 - MFS (/data) should be not installed on the same partition as server (/srv)
-- If you expect high rate of read/write operations, database base partition (/srv/db) should be installed on a high speed disk or partition, ie. SSD or NVMe
+- If you expect high rate of read/write operations, database base partition (/srv/db) should be installed on a high speed disk or partition, ie. SSD or NVMe 
 
 ### Caution
 - The provided domain name can noyt be shared with existing or futur application
 - It is recommanded not to share DB server with any other application
 
 ## Installation 
-Open your provider's DNS manager.
-- In th DNS zone, remove all existing DNS records
-- Add records A and AAAA (if any) to your domain name
-- Add records A and AAAA to ns1.your.domain and ns2.your.domain 
-- Change the GLUE records of your DNS registry as follows: 
-* ns1.your.domain <---> IP4,IP6
-* ns2.your.domain <---> IP4,IP6
-- Change to name servers fo your domain to ns1.your.domain and ns2.your.domain
-Wait the change to take effects. 
+### Prepare your ISP settings
+
+#### Prepare you IP addresses
+This task depends on your Domain Name Provider. Replace *example.org* by your own domain name. If you don't have IP V6 address, just fill in IPV4 fields.
+The purpose of this task to bind your domain name to the Ip Address of your Drumee Server. 
+
+In th DNS zone, remove all existing DNS records. Then, create following records in your Domain Name Provider:
+
+  | Domain Name      |  Type  | Target             |
+  |------------------|--------|--------------------|
+  | example.org      | A      | your.ip.4.address  |
+  | example.org      | AAAA   | your.ip.6.address  |
+  | ns1.example.org  | A      | your.ip.4.address  |
+  | ns1.example.org  | AAAA   | your.ip.6.address  |
+  | ns2.example.org  | A      | your.ip.4.address  |
+  | ns2.example.org  | AAAA   | your.ip.6.address  |
+
+#### Change the default Domain Name Server (DNS)
+This section will replace your ISP DNS by the one that run on your own Synology NAS. To make this effective, open your ISP interface and change current Name Servers to ns1.example.org and ns2.example.org
+
+#### Change your GLUE DNS
+Open your ISP interface and add following entries:
+- ns1.example.org 
+- ns2.example.org
+
+Wait the change to take effects.
+
+#### Check your DNS records
+
+Open a Shell Terminal and run
+
+```console
+nslookup example.org
+```
+
+If everything is OK, you should see response like below.
+
+Server:		192.168.5.1
+Address:	192.168.5.1#53
+
+Non-authoritative answer:
+Name:	example.org
+Address: *your.ip.4.address*
+Name:	example.org
+Address: *your.ip.4.address*
+
+
+### Prepare your settings 
 
 ```console
 git clone https://github.com/drumee/debian-hosted.git
@@ -57,10 +96,10 @@ cd debian-hosted
 ```
 
 ```console
-cp env.sh my-setup.sh
+cp env.sh drumee.sh
 ```
 
-- Use your favorite editor to change values in the file *my-setup.sh* accordingly to your setup. 
+- Use your favorite editor to change values in the file *drumee.sh* accordingly to your setup. 
 - Save the changes. 
 - Check that GLUE records has been updated.
 
@@ -70,5 +109,5 @@ cp env.sh my-setup.sh
 
 *Folling command must be executed as root user i.e su, not sudo*
 ```console
-./install --env-file=my-setup.sh
+./install --env-file=drumee.sh
 ```

@@ -107,7 +107,7 @@ cp env.sh drumee.sh
 
 **Ensure directories (DRUMEE_DB_DIR, DRUMEE_DATA_DIR) exist and have enough space**
 
-*Folling command must be executed as root user i.e su, not sudo*
+*Following command must be executed as root user i.e su, not sudo*
 ```console
 ./install --env-file=drumee.sh
 ```

@@ -38,6 +38,9 @@ install_dependencies() {
 
 # 
 install_drumee_packages() {
+  if [ "$DRUMEE_REPO" = "" ]; then
+    export DRUMEE_REPO=app.drumee.com
+  fi
   echo Using packags from $DRUMEE_REPO
   tmpdir=/var/tmp/drumee/packages
   mkdir -p $tmpdir
@@ -115,7 +118,7 @@ function install_jitsi() {
   if [ "$installed" = "" -o "$FORCE_INSTALL" = "yes" ]; then
     key=/etc/apt/trusted.gpg.d/jitsi-key.gpg
     if [ ! -f $key ]; then
-      curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee j$key >/dev/null 2>&1
+      curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee $key >/dev/null 2>&1
     fi
 
     source=/etc/apt/sources.list.d/jitsi-stable.list

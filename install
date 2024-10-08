@@ -104,5 +104,6 @@ if [ "$DRUMEE_REPO" = "" ]; then
 fi
 
 $script_dir/bin/install-packages 
+write_version
 sleep 5
 $script_dir/bin/install-drumee

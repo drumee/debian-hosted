@@ -13,8 +13,39 @@ install_dependencies
 check_ports
 install_node_packages
 
-debconf-set-selections $base_dir/preset/postfix
-install_postfix
-
 install_mariadb
 
+jitsi=yes
+postfix=yes
+reinstall=no
+for arg in "$@"; do
+  case $arg in
+  --disable-jitsi=*)
+    jitsi=no
+    shift
+    ;;
+  --disable-postfix=*)
+    postfix=no
+    shift
+    ;;
+  --reinstall=*)
+    reinstall=yes
+    shift
+    ;;
+  esac
+done
+
+if [ "$reinstall" = "yes" ]; then
+  export FORCE_INSTALL=yes
+fi
+
+if [ "$jitsi" = "yes" ]; then
+  debconf-set-selections $base_dir/preset/jitsi
+  install_jitsi
+  write_version
+fi
+
+if [ "$postfix" = "yes" ]; then
+  debconf-set-selections $base_dir/preset/postfix
+  install_postfix
+fi

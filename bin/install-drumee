@@ -6,44 +6,14 @@ if [ "$USER" != "root" ]; then
   exit 1
 fi
 script_dir=$(dirname $(readlink -f $0))
+script_name=$(basename $0)
 base_dir=$(dirname $script_dir)
 source $script_dir/functions
 
-ports_check=yes
-reinstall=
-repository=
-for arg in "$@"; do
-  case $arg in
-  --skip-ports-check=*)
-    ports_check="no"
-    shift
-    ;;
-  --repository=*)
-    repository="${arg#*=}"
-    shift
-    ;;
-  --force-infra-install=*)
-    reinstall="reinstall"
-    shift
-    ;;
-  esac
-done
-set +e
-install_dependencies
-check_ports
-install_node_packages
-
-debconf-set-selections $base_dir/preset/postfix
-install_postfix
-
-debconf-set-selections $base_dir/preset/jitsi
-install_jitsi
-
-install_mariadb
-if [ $reinstall = "reinstall" ]; then
+if [ $script_name = "reinstall" ]; then
   echo Reinstalling Drumee Packages
   for i in drumee-ui-pod drumee-server-pod drumee-infra drumee-schemas drumee-static; do
-    dpkg -r $i
+    apt remove $i
   done
   exort FORCE_INSTALL=yes
 fi

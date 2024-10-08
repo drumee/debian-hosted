@@ -108,19 +108,19 @@ install_mariadb() {
 }
 
 # Install Jitsi packages
-install_jitsi() {
-  installed=$(dpkg -l | egrep "^ii +jitsi-meet")
-  if [ "$installed" != "" ]; then
-    echo Already have jitsi-meet. 
-    return 0
-  fi
-  curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/jitsi-key.gpg
-  echo "deb https://download.jitsi.org stable/" | tee /etc/apt/sources.list.d/jitsi-stable.list
+# install_jitsi() {
+#   installed=$(dpkg -l | egrep "^ii +jitsi-meet")
+#   if [ "$installed" != "" ]; then
+#     echo Already have jitsi-meet. 
+#     return 0
+#   fi
+#   curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/jitsi-key.gpg
+#   echo "deb https://download.jitsi.org stable/" | tee /etc/apt/sources.list.d/jitsi-stable.list
 
-  apt update
-  apt install -y prosody
-  DEBIAN_FRONTEND="noninteractive" apt install -y jitsi-meet
-}
+#   apt update
+#   apt install -y prosody
+#   DEBIAN_FRONTEND="noninteractive" apt install -y jitsi-meet
+# }
 
 #
 node_version() {

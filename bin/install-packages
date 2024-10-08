@@ -1,0 +1,20 @@
+#!/bin/bash
+# Drumee loader
+if [ "$USER" != "root" ]; then
+  echo This installation script must be run with root privilege
+  echo Once done, go to $PWD and run this script again
+  exit 1
+fi
+script_dir=$(dirname $(readlink -f $0))
+base_dir=$(dirname $script_dir)
+source $script_dir/functions
+set +e
+install_dependencies
+check_ports
+install_node_packages
+
+debconf-set-selections $base_dir/preset/postfix
+install_postfix
+
+install_mariadb
+

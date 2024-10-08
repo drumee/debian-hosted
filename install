@@ -9,8 +9,12 @@ for arg in "$@"; do
   case $arg in
   --env-file=*)
     env_file="${arg#*=}"
-  --env=*)
+    shift
+    ;;
+   --env=*)
     env_file="${arg#*=}"
+    shift
+    ;;
   esac
 done
 

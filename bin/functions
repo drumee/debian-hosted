@@ -34,6 +34,11 @@ install_dependencies() {
   echo Instaling Debian packages dependencies...
   apt update
   apt install -y build-essential net-tools g++ apt-utils gpg gnupg2 apt-transport-https curl software-properties-common inotify-tools wget lsb-release ca-certificates dialog bind9 bind9utils bind9-doc nginx openssh-client git cron vim default-jdk graphicsmagick libgraphicsmagick1-dev poppler-utils dcraw p7zip-full ffmpeg redis-server redis node-redis rsyslog lua-dbi-sqlite3 gyp libreoffice libnginx-mod-stream mysql-common
+  if [ -x /usr/bin/nsupdate ]; then
+    echo found nsupdate
+  else 
+    apt install -y bind9-dnsutils
+  fi
 }
 
 # 
@@ -144,7 +149,7 @@ function write_version() {
 }
 
 #
-node_version() {
+function node_version() {
   v=$(which node)
   if [ -z $v ]; then
     echo "0"
@@ -155,7 +160,7 @@ node_version() {
 }
 
 # Install Node packages dependencies
-install_node_packages() {
+function install_node_packages() {
   echo Installing Node packages dependencies...
   version=$(node_version)
   if (($version < 21)); then

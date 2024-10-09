@@ -94,7 +94,12 @@ install_drumee_packages() {
 
 
 install_postfix() {
-  DEBIAN_FRONTEND="noninteractive" apt install -y libopendkim11 opendkim-tools libmail-dkim-perl opendkim postfix mailutils spamass-milter postfix-mysql
+  if [ -f "$1" ]; then
+    debconf-set-selections $1
+    DEBIAN_FRONTEND="noninteractive" apt install -y libopendkim11 opendkim-tools libmail-dkim-perl opendkim postfix mailutils spamass-milter postfix-mysql
+  else
+    echo Preset file is missing. Could not preinstall postfix
+  fi
 }
 
 install_mariadb() {
@@ -115,23 +120,25 @@ install_mariadb() {
   service mariadb stop
 }
 
-# Install Jitsi packages
-function install_jitsi() {
+# Preinstall Jitsi packages
+function preinstall_jitsi() {
   # Jitsi package
   echo Checking jitsi-meet packages
-  installed=$(dpkg -l | egrep "^ii +jitsi-meet ")
+  if [ -f /etc/prosody/conf.d/jit.${DRUMEE_DOMAIN_NAME}.cfg.lua ]; then
+    installed=yes
+  fi
   if [ "$installed" = "" -o "$FORCE_INSTALL" = "yes" ]; then
-    key=/etc/apt/trusted.gpg.d/jitsi-key.gpg
-    if [ ! -f $key ]; then
-      curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee $key >/dev/null 2>&1
+    curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/jitsi-key.gpg
+    echo "deb https://download.jitsi.org stable/" | tee /etc/apt/sources.list.d/jitsi-stable.list
+    apt update
+    # Preinstall with default settings
+    # Actual settings shall be applied by the package drumee-infra
+    if [ -f "$1" ]; then
+      debconf-set-selections $1
+      DEBIAN_FRONTEND="noninteractive" apt install -y jitsi-meet
+    else
+      echo Preset file is missing. Could not preinstall jitsi-meet
     fi
-
-    source=/etc/apt/sources.list.d/jitsi-stable.list
-    if [ ! -f $jitsi_source ]; then
-      echo "deb https://download.jitsi.org stable/" | tee $source
-      apt update
-    fi
-    DEBIAN_FRONTEND="noninteractive" apt install -y jitsi-meet
   else
     echo "Jitsi package alreay installed. Skipped."
   fi

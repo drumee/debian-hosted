@@ -40,12 +40,10 @@ if [ "$reinstall" = "yes" ]; then
 fi
 
 if [ "$jitsi" = "yes" ]; then
-  debconf-set-selections $base_dir/preset/jitsi
-  install_jitsi
+  preinstall_jitsi $base_dir/preset/jitsi
   write_version
 fi
 
 if [ "$postfix" = "yes" ]; then
-  debconf-set-selections $base_dir/preset/postfix
-  install_postfix
+  install_postfix $base_dir/preset/postfix
 fi

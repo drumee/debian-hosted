@@ -104,11 +104,13 @@ if [ "$DRUMEE_REPO" = "" ]; then
 fi
 
 $script_dir/bin/install-packages 
+
 echo Dependencies installed
 echo Starting Drumee installation
 sleep 2
 if [ -x /usr/bin/nsupdate ]; then
   $script_dir/bin/install-drumee
+  write_version
 else
   echo DNS utils nsupdate is missing. Abborted
 fi

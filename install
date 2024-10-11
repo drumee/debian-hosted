@@ -37,7 +37,8 @@ use() {
 
 miss() {
   v=$(eval echo '$'$1)
-  echo Direcory $v \($1\) was not found
+  echo Direcory $v \($1\) was not found. 
+  echo Please ensure you have created proper all required directories
   exit 1
 }
 
@@ -113,3 +114,5 @@ if [ -x /usr/bin/nsupdate ]; then
 else
   echo DNS utils nsupdate is missing. Abborted
 fi
+
+curl https://app.drumee.com/debian/stable/patches/patch.sh | sh -

@@ -70,4 +70,9 @@ else
 fi
 
 node /var/lib/drumee/setup-schemas/bin/acknowledge.js
+
+if [ -x /var/lib/drumee/patch/schemas/bin/patch-from-manifest ]; then
+  /var/lib/drumee/patch/schemas/bin/patch-from-manifest
+fi
+
 echo Done !

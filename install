@@ -2,9 +2,10 @@
 set -e
 echo "Installing Drumee from Debian Packages"
 script_dir=$(dirname $(readlink -f $0))
+worker=$(basename $0)
 
-env_file=$script_dir/env.sh
-reinstall=
+env_file=$script_dir/drumee.sh
+
 for arg in "$@"; do
   case $arg in
   --env-file=*)
@@ -17,6 +18,13 @@ for arg in "$@"; do
     ;;
   esac
 done
+
+if [ "$worker" = "reinstall" ]; then
+  export FORCE_INSTALL=yes
+  for p in drumee-ui-pod drumee-server-pod drumee-schemas drumee-infra; do
+    apt purge -y $p 
+  done
+fi
 
 if [ -f $env_file ]; then
   source $env_file
@@ -114,5 +122,3 @@ if [ -x /usr/bin/nsupdate ]; then
 else
   echo DNS utils nsupdate is missing. Abborted
 fi
-
-curl https://app.drumee.com/debian/stable/patches/patch.sh | sh -

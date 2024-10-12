@@ -109,5 +109,5 @@ cp env.sh drumee.sh
 
 *Following command must be executed as root user i.e su, not sudo*
 ```console
-./install --env-file=drumee.sh
+./install 
 ```

@@ -33,7 +33,7 @@ check_ports() {
 install_dependencies() {
   echo Instaling Debian packages dependencies...
   apt update
-  apt install -y build-essential net-tools g++ apt-utils gpg gnupg2 apt-transport-https curl software-properties-common inotify-tools wget lsb-release ca-certificates dialog bind9 bind9utils bind9-doc nginx openssh-client git cron vim default-jdk graphicsmagick libgraphicsmagick1-dev poppler-utils dcraw p7zip-full ffmpeg redis-server redis node-redis rsyslog lua-dbi-sqlite3 gyp libreoffice libnginx-mod-stream mysql-common
+  apt install -y build-essential net-tools g++ apt-utils gpg gnupg2 apt-transport-https curl software-properties-common inotify-tools wget lsb-release ca-certificates dialog bind9 bind9-dnsutils bind9-doc nginx openssh-client git cron vim default-jdk graphicsmagick libgraphicsmagick1-dev poppler-utils dcraw p7zip-full ffmpeg redis-server redis node-redis rsyslog lua-dbi-sqlite3 gyp libreoffice libnginx-mod-stream mysql-common
   if [ -x /usr/bin/nsupdate ]; then
     echo found nsupdate
   else 
@@ -115,7 +115,7 @@ install_mariadb() {
     if [ ! -f /etc/apt/sources.list.d/mariadb.list ]; then
       curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash
     fi
-    apt install -y --no-install-recommends mariadb-server mariadb-client mariadb-backup
+    apt install -y --install-recommends mariadb-server mariadb-client mariadb-backup
   fi
   service mariadb stop
 }
@@ -128,7 +128,7 @@ function preinstall_jitsi() {
     installed=yes
   fi
   if [ "$installed" = "" -o "$FORCE_INSTALL" = "yes" ]; then
-    curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/jitsi-key.gpg
+    curl -sS https://download.jitsi.org/jitsi-key.gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/jitsi-key.gpg > /dev/null
     echo "deb https://download.jitsi.org stable/" | tee /etc/apt/sources.list.d/jitsi-stable.list
     apt update
     # Preinstall with default settings
